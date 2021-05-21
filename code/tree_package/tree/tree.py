@@ -1,31 +1,9 @@
 """
 Quick-and-dirty имплементация бинарного дерева поиска
 Поддеревья не балансируются
-Что нужно сделать -- отвязать BST от конкретной имплементации Node
-Комменты в коде на английском, потому что я так люблю больше
 """
 from typing import Iterable, Any, Union, Optional
-class Node:
-    """
-    Лист бинарного дерева
-    без валидации left<value<right!
-    """
-    value = None
-    left = None
-    right = None
-    def __init__(self, value: Any)-> None:
-        self.value = value
-    def __repr__(self)->str:
-        return str(self.value)
-
-class NodePoint:
-    """
-    Лист дерева, подготовленный к печати
-    TODO: отнаследоваться от Node прост
-    """
-    def __init__(self, node: Node, offset: int)-> None:
-        self.node = node
-        self.offset = offset
+from .node import Node
 
 class SearchResult:
     """
@@ -33,39 +11,46 @@ class SearchResult:
     Нужна только тогда, когда нужно передать родителя ноды
     и порядок наследования (left/right)
     """
-    def __init__(self, node: Node, parent: Node, order: str)-> None:
+    def __init__(self, node, parent, order: str)-> None:
         self.node = node
         self.parent = parent
         self.order = order
+
+class NodePoint:
+    """
+    Обертка листа для печати
+    """
+    def __init__(self, node, offset: int)-> None:
+        self.node = node
+        self.offset = offset
 
 class BST:
     """
     Бинарное дерево поиска
     без баланса поддеревьев
-    TODO: более изящно управлять пустым деревом
-    (NoneType не comparable, а BST(Node(None)) допускается?!)
-    TODO: добавить self.node_class для кастомных имплементаций Node
-    чтобы, например, имплементировать АВЛ 
-    (где есть Node.colour)
     """
-    def __init__(self, data: Any):
-        self.root = None
+    node = Node
+    root = None
+    printing_offset = 20
+
+    def __init__(self, data: Any, node_type=None):
+        if node_type is not None:
+            self.node = node_type
         if isinstance(data, Iterable) and data:
             for i in data:
                 self.insert(i)
-        elif isinstance(data, Node):
+        elif isinstance(data, self.node):
             self.root = data
         else:
-            self.root = Node(data)
+            self.root = self.node(data)
         
-    def __repr__(self)->str:
-        ROOT_OFFSET = 20
-        roots = [NodePoint(self.root, offset=ROOT_OFFSET)]
+    def __repr__(self)->str:        
+        roots = [NodePoint(self.root, offset=self.printing_offset)]
         def plot_tree(roots, tab=1) -> str:
             """
                 Послойная печать дерева
-                TODO: выставить нормальные отступы
-                TODO: заменить `q` на collections.dequeue для красоты
+                TODO: выставить вычисляемый отступ у корня
+                (сейчас используется заранее выставленнй self.printing_offset)
             """
             q = []
             s = ""
@@ -89,34 +74,34 @@ class BST:
         else:
             return ""
 
-    def insert(self, value: Any)->Node:
+    def insert(self, value: Any)->node:
         """
-        Вставить значение в дерево
+        Вставка значения в дерево
         """
-        def insert_value(root:Node, value: Any)->Node:
+        def insert_value(root:self.node, value: Any)->self.node:
             if value<root.value:
                 if root.left:
                     return insert_value(root.left, value)
                 else:
-                    node = Node(value)
+                    node = self.node(value)
                     root.left = node
                     return node
             elif value>root.value:
                 if root.right:
                     return insert_value(root.right, value)
                 else:
-                    node = Node(value)
+                    node = self.node(value)
                     root.right = node
                     return node
             return root
         if self.root is not None:
             return insert_value(self.root, value)
         else:
-            self.root = Node(value)
+            self.root = self.node(value)
             return self.root
     
     def search(self, value)->Union[SearchResult,None]:
-        def search_value(root: Node, value: Any, parent: Optional[Node], order: Optional[str])->Union[SearchResult,None]:
+        def search_value(root: self.node, value: Any, parent: Optional[self.node], order: Optional[str])->Union[SearchResult,None]:
             """
             Поиск по дереву
             с костылём для удобства возврата родителя
@@ -139,7 +124,7 @@ class BST:
         else:
             return None
     
-    def __contains__(self, value):
+    def __contains__(self, value)->bool:
         if self.search(value) is not None:
             return True
         else:
@@ -149,7 +134,7 @@ class BST:
         """
         Удаление значения из дерева
         """
-        def delete_item(item:Node, parent:Node, order)->None:
+        def delete_item(item:self.node, parent:self.node, order)->None:
             if item.right:
                 # move the left tree into the right
                 if item.left:
@@ -169,7 +154,7 @@ class BST:
                 setattr(parent, order, None)
         if self.root is not None:
             if self.root.value==value:
-                fake_root = Node(value-1) # TODO: add some care about "overflow"
+                fake_root = self.node(value-1) # TODO: add some care about "overflow"
                 fake_root.right = self.root
                 delete_item(self.root, fake_root, 'right')
                 self.root = fake_root.right

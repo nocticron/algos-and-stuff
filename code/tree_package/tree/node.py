@@ -13,3 +13,15 @@ class Node:
         self.value = value
     def __repr__(self)->str:
         return str(self.value)
+
+class AVLNode(Node):
+    """
+    Лист АВЛ-дерева
+    """
+    balance = 0
+
+class RBNode(Node):
+    """
+    Лист красно-чёрного дерева
+    """
+    colour = None

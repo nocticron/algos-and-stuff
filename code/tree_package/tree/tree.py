@@ -1,13 +1,15 @@
 """
 Quick-and-dirty имплементация бинарного дерева поиска
 Поддеревья не балансируются
+Нэйминг как мне удобно
 """
 from typing import Iterable, Any, Union, Optional
 from .node import Node
 
 class SearchResult:
     """
-    Структура для удобста поиска и удаления
+    Служебная структура для удобста поиска и удаления
+    (костыль)
     Нужна только тогда, когда нужно передать родителя ноды
     и порядок наследования (left/right)
     """
@@ -18,7 +20,8 @@ class SearchResult:
 
 class NodePoint:
     """
-    Обертка листа для печати
+    Служебная обертка листа дерева 
+    для печати на экране с заданным offset
     """
     def __init__(self, node, offset: int)-> None:
         self.node = node
@@ -35,6 +38,8 @@ class BST:
 
     def __init__(self, data: Any, node_type=None):
         if node_type is not None:
+            # no strict input check
+            # cause of duck typing philosophy
             self.node = node_type
         if isinstance(data, Iterable) and data:
             for i in data:
@@ -51,6 +56,7 @@ class BST:
                 Послойная печать дерева
                 TODO: выставить вычисляемый отступ у корня
                 (сейчас используется заранее выставленнй self.printing_offset)
+                TODO: переделать обход в ширину с очередью deque вместо q
             """
             q = []
             s = ""

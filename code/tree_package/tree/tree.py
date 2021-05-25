@@ -4,8 +4,8 @@ from .turns import turn, grosser_turn, LEFT, RIGHT
 
 class SearchResult:
     """
-    Proxy structure to simplicity of search and deletion
-    (saves the parent and child's inheritance order)
+    Proxy structure for search and deletion simplicity
+    (saves the parent node and inheritance order)
     """
     def __init__(self, node, parent, order: str)-> None:
         self.node = node
@@ -113,12 +113,12 @@ class BST:
             """
             if root.value>value:
                 if root.left:
-                    return search_value(root.left, value, root, 'left')
+                    return search_value(root.left, value, root, LEFT)
                 else:
                     return None
             elif root.value<value:
                 if root.right:
-                    return search_value(root.right, value, root, 'right')
+                    return search_value(root.right, value, root, RIGHT)
                 else:
                     return None
             elif root.value==value:
@@ -161,7 +161,7 @@ class BST:
             if self.root.value==value:
                 fake_root = self.node(value-1) # TODO: add some care about "overflow"
                 fake_root.right = self.root
-                delete_item(self.root, fake_root, 'right')
+                delete_item(self.root, fake_root, RIGHT)
                 self.root = fake_root.right
             else:
                 root = self.search(value)

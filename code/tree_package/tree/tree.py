@@ -1,18 +1,11 @@
-"""
-Quick-and-dirty имплементация бинарного дерева поиска
-Поддеревья не балансируются
-Нэйминг как мне удобно
-"""
 from typing import Iterable, Any, Union, Optional, Tuple
 from .node import Node, AVLNode
 from .turns import turn, grosser_turn, LEFT, RIGHT
 
 class SearchResult:
     """
-    Служебная структура для удобста поиска и удаления
-    (костыль)
-    Нужна только тогда, когда нужно передать родителя ноды
-    и порядок наследования (left/right)
+    Proxy structure to simplicity of search and deletion
+    (saves the parent and child's inheritance order)
     """
     def __init__(self, node, parent, order: str)-> None:
         self.node = node
@@ -21,8 +14,8 @@ class SearchResult:
 
 class NodePoint:
     """
-    Служебная обертка листа дерева 
-    для печати на экране с заданным offset
+    Printing proxy object
+    adds a node printng offset
     """
     def __init__(self, node, offset: int)-> None:
         self.node = node
@@ -30,17 +23,17 @@ class NodePoint:
 
 class BST:
     """
-    Бинарное дерево поиска
-    без баланса поддеревьев
+    Binary search tree
+    without subtree balancing
     """
     node = Node
     root = None
     printing_offset = 20
 
     def __init__(self, data: Any, node_type=None):
+        # no strict input check
+        # cause of duck typing philosophy
         if node_type is not None:
-            # no strict input check
-            # cause of duck typing philosophy
             self.node = node_type
         if isinstance(data, Iterable) and data:
             for i in data:
@@ -54,10 +47,11 @@ class BST:
         roots = [NodePoint(self.root, offset=self.printing_offset)]
         def plot_tree(roots, tab=1) -> str:
             """
-                Послойная печать дерева
-                TODO: выставить вычисляемый отступ у корня
-                (сейчас используется заранее выставленнй self.printing_offset)
-                TODO: переделать обход в ширину с очередью deque вместо q
+                Breadth-first printing
+                TODO: compute root offset at the bottom of the tree
+                (instead of pre-set printing_offset)
+                TODO: make use of collections.deque 
+                (instead of q)
             """
             q = []
             s = ""
@@ -83,7 +77,8 @@ class BST:
 
     def insert(self, value: Any)->node:
         """
-        Вставка значения в дерево
+            Adds value to the tree.
+            Make sure it is comparable.
         """
         def insert_value(root:self.node, value: Any)->self.node:
             if value<root.value:
@@ -108,11 +103,13 @@ class BST:
             return self.root
     
     def search(self, value)->Union[SearchResult,None]:
+        """
+            Searches value at the tree.
+            Make sure it's comparable.
+        """
         def search_value(root: self.node, value: Any, parent: Optional[self.node], order: Optional[str])->Union[SearchResult,None]:
             """
-            Поиск по дереву
-            с костылём для удобства возврата родителя
-            TODO: выкинуть костыль, поменяв глубину сравнений
+                TODO: get rid of SearchResult proxy
             """
             if root.value>value:
                 if root.left:
@@ -139,7 +136,7 @@ class BST:
 
     def delete(self, value: Any)->None:
         """
-        Удаление значения из дерева
+        Deletes the item from the tree.
         """
         def delete_item(item:self.node, parent:self.node, order)->None:
             if item.right:
@@ -173,7 +170,7 @@ class BST:
 
     def traverse(self):
         """
-        Обход слева направо
+        Left-to-right traverse.
         """
         def traverse_ltr(root):
             if root.left:
@@ -188,8 +185,7 @@ class BST:
 
     def __add__(self, other):
         """
-            Сложение a.k.a. конкатенация
-            двух деревьев
+            Tree concatenation.
         """
         from copy import deepcopy
         res = deepcopy(self)
@@ -201,8 +197,7 @@ class BST:
 
 class AVLT(BST):
     """
-    НАШЕ, ОТЕЧЕСТВЕННОЕ
-    ДЕРЕВО ПОИСКА
+    USSR POWER
     """
     node = AVLNode
     @staticmethod
@@ -246,7 +241,8 @@ class AVLT(BST):
 
     def insert(self, value: Any) -> node:
         """
-            Default inserting scheme
+            Insert an item to the tree.
+            Make sure it is comparable.
         """
         def insert_value(root:self.node, value: Any)->Tuple[self.node, int]:
             if value<root.value:
@@ -269,4 +265,9 @@ class AVLT(BST):
             return self.root
 
     def delete(self, value):
+        """
+            Deletes item from the tree.
+            Too lazy to impl for now.
+            TODO: impl
+        """
         raise NotImplementedError

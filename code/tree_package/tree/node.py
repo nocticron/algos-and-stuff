@@ -3,10 +3,8 @@ DEFAULT_HEIGHT = 1 # sets default height for Node without children
 
 class Node:
     """
-    Лист бинарного дерева
-    без валидации left<value<right!
-    без проверки value на компарабельность
-    (нет pythonic-way это сделать)
+    Binary tree node.
+    Without left<value<right validation!
     """
     value = None
     left = None
@@ -18,7 +16,7 @@ class Node:
 
 class AVLNode(Node):
     """
-    Лист АВЛ-дерева
+    AVL Tree Node
     """
     height = DEFAULT_HEIGHT
     def __repr__(self, with_balance=False) -> str:
@@ -38,6 +36,6 @@ class AVLNode(Node):
 
 class RBNode(Node):
     """
-    Лист красно-чёрного дерева
+    Red-black tree node.
     """
     colour = None

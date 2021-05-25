@@ -159,7 +159,7 @@ class BST:
         if self.root is not None:
             # if we want to delete a root value
             if self.root.value==value:
-                fake_root = self.node(value-1) # TODO: add some care about "overflow"
+                fake_root = self.node(None)
                 fake_root.right = self.root
                 delete_item(self.root, fake_root, RIGHT)
                 self.root = fake_root.right

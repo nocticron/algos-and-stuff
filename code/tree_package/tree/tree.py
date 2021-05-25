@@ -3,8 +3,9 @@ Quick-and-dirty имплементация бинарного дерева по�
 Поддеревья не балансируются
 Нэйминг как мне удобно
 """
-from typing import Iterable, Any, Union, Optional
-from .node import Node
+from typing import Iterable, Any, Union, Optional, Tuple
+from .node import Node, AVLNode
+from .turns import turn, grosser_turn, LEFT, RIGHT
 
 class SearchResult:
     """
@@ -159,6 +160,7 @@ class BST:
             else:
                 setattr(parent, order, None)
         if self.root is not None:
+            # if we want to delete a root value
             if self.root.value==value:
                 fake_root = self.node(value-1) # TODO: add some care about "overflow"
                 fake_root.right = self.root
@@ -195,3 +197,76 @@ class BST:
             if i not in res:
                 res.insert(i)
         return res
+
+
+class AVLT(BST):
+    """
+    НАШЕ, ОТЕЧЕСТВЕННОЕ
+    ДЕРЕВО ПОИСКА
+    """
+    node = AVLNode
+    @staticmethod
+    def grosser_left(root):
+        return grosser_turn(LEFT)(root)
+    @staticmethod
+    def grosser_right(root):
+        return grosser_turn(RIGHT)(root)
+    @staticmethod
+    def lesser_left(root):
+        return turn(LEFT)(root)
+    @staticmethod
+    def lesser_right(root):
+        return turn(RIGHT)(root)
+
+    def balance(self, root):
+        """
+            Default AVL balancing scheme
+        """
+        if root.balance==-2:
+            if root.left.balance>0:
+                root = self.grosser_right(root) 
+                root.left.recalculate_height() # left must exist
+                root.right.recalculate_height() # right also
+                root.recalculate_height()               
+            else:
+                root = self.lesser_right(root)
+                root.right.recalculate_height() # right must exist
+                root.recalculate_height()
+        elif root.balance==2:
+            if root.right.balance<0:
+                root = self.grosser_left(root)
+                root.left.recalculate_height() # left must exist
+                root.right.recalculate_height() # right also
+                root.recalculate_height()
+            else:
+                root = self.lesser_left(root)
+                root.left.recalculate_height() # left must exist
+                root.recalculate_height()
+        return root
+
+    def insert(self, value: Any) -> node:
+        """
+            Default inserting scheme
+        """
+        def insert_value(root:self.node, value: Any)->Tuple[self.node, int]:
+            if value<root.value:
+                if root.left is None:
+                    root.left = self.node(value)
+                else:
+                    root.left = insert_value(root.left, value)
+            elif value>root.value:
+                if root.right is None:
+                    root.right = self.node(value)
+                else:
+                    root.right = insert_value(root.right, value)
+            root.recalculate_height()
+            return self.balance(root)
+
+        if self.root is not None:
+            self.root = insert_value(self.root, value)
+        else:
+            self.root = self.node(value)
+            return self.root
+
+    def delete(self, value):
+        raise NotImplementedError

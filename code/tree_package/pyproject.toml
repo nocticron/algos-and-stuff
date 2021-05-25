@@ -1,0 +1,19 @@
+[project]
+name = "tree"
+version = "1.0"
+python = "^3.8"
+description = "Binary search tree: quick and dirty"
+authors = [
+    "Nocticron <mail@example.com>"
+]
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+[build-system]
+requires = [
+    "setuptools>=42",
+    "wheel"
+]
+build-backend = "setuptools.build_meta"

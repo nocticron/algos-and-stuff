@@ -21,6 +21,7 @@ class AVLNode(Node):
     height = DEFAULT_HEIGHT
     def __repr__(self, with_balance=False) -> str:
         if with_balance:
+        # your value could contain ';' already :)
             return str(self.value)+';'+str(self.balance)
         else:
             return str(self.value)
